@@ -72,7 +72,7 @@ export default function ChallengeList() {
       .from('teams')
       .insert([{
         challenge_id: challengeId,
-        team_name: `${user.email}'s Team`,
+        team_name: `Team ${Math.random().toString(36).substring(2, 7).toUpperCase()}`,,
         created_by: user.id,
         university: myUniversity || 'Not specified',
       }])
