@@ -19,13 +19,29 @@ export default function ChallengeList() {
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [joinedTeams, setJoinedTeams] = useState({})
-  const [mySkills, setMySkills] = useState(localStorage.getItem('mySkills') || '')
-  const [myUniversity, setMyUniversity] = useState(localStorage.getItem('myUniversity') || '')
-  const [showSkillPrompt, setShowSkillPrompt] = useState(!localStorage.getItem('mySkills'))
+  const [mySkills, setMySkills] = useState('')
+  const [myUniversity, setMyUniversity] = useState('')
 
   useEffect(() => {
     fetchChallenges()
+    loadProfile()
   }, [])
+
+  const loadProfile = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data } = await supabase
+      .from('profiles')
+      .select('skills, university')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (data) {
+      setMySkills(data.skills || '')
+      setMyUniversity(data.university || '')
+    }
+  }
 
   const fetchChallenges = async () => {
     setLoading(true)
@@ -41,13 +57,6 @@ export default function ChallengeList() {
 
   const handlePosted = () => {
     fetchChallenges()
-  }
-
-  const saveSkillsAndUniversity = (e) => {
-    e.preventDefault()
-    localStorage.setItem('mySkills', mySkills)
-    localStorage.setItem('myUniversity', myUniversity)
-    setShowSkillPrompt(false)
   }
 
   const handleJoin = async (challengeId, challengeTitle) => {
@@ -96,25 +105,11 @@ export default function ChallengeList() {
 
   return (
     <div>
-      {showSkillPrompt && (
-        <div className="card">
-          <h4>Tell us about you</h4>
-          <p style={{ fontSize: 14, color: '#666' }}>This helps us recommend the best-matched challenges for you.</p>
-          <form onSubmit={saveSkillsAndUniversity}>
-            <input
-              type="text"
-              placeholder="Your skills (comma separated, e.g. web development, AI, design)"
-              value={mySkills}
-              onChange={(e) => setMySkills(e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Your university/college name"
-              value={myUniversity}
-              onChange={(e) => setMyUniversity(e.target.value)}
-            />
-            <button type="submit" className="btn">Save & Continue</button>
-          </form>
+      {!mySkills && (
+        <div className="card" style={{ background: '#fff3f0', border: '1px solid #ffcfc5' }}>
+          <p style={{ margin: 0 }}>
+            💡 Tip: Add your skills in your <a href="/profile">Profile</a> to get personalized challenge recommendations.
+          </p>
         </div>
       )}
 

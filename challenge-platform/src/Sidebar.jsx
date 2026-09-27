@@ -1,11 +1,19 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 
 export default function Sidebar({ onLogout }) {
+  const navigate = useNavigate()
+
   return (
     <div className="sidebar">
-      <div className="sidebar-logo">CoSolve</div>
-      <NavLink to="/" end className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
-        🏠 Home
+      <div
+        className="sidebar-logo"
+        onClick={() => navigate('/')}
+        style={{ cursor: 'pointer' }}
+      >
+        CoSolve
+      </div>
+      <NavLink to="/profile" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
+        👤 Profile
       </NavLink>
       <NavLink to="/challenges" className={({ isActive }) => `sidebar-link${isActive ? ' active' : ''}`}>
         🎯 Challenges
